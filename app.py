@@ -6,28 +6,13 @@ from pytz import timezone
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 from functools import wraps
+from init import create_app
+from models import Customer,User,db
 
 singapore = timezone('Asia/Singapore')
 
-app = Flask(__name__)
+app = create_app()
 
-app.config['SECRET_KEY'] = 'secret'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Tuv#24893@localhost:5432/customerdb'
-
-db = SQLAlchemy(app)
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    public_id = db.Column(db.String(50), unique=True)
-    name = db.Column(db.String(50))
-    password = db.Column(db.String(80))
-    admin = db.Column(db.Boolean)
-
-class Customer(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50))
-    dob = db.Column(db.String(50)) #Date format of YYYY-MM-DD
-    updated_at = db.Column(db.String(50))
 
 def token_required(f):
     @wraps(f)
@@ -54,12 +39,24 @@ def create_user(current_user):
 
     hashed_password = generate_password_hash(data['password'], method='sha256')
 
-    new_user = User(name = data['name'], password=hashed_password, admin=True)
+    new_user = User(public_id = str(uuid.uuid4()), name = data['name'], password=hashed_password, admin=False)
 
     db.session.add(new_user)
     db.session.commit()
     return jsonify({'message': 'New user has been created'})
 
+@app.route('/user/<public_id>', methods=['PUT'])
+def promote_user(current_user, public_id):
+
+    user = User.query.filter_by(public_id = public_id).first()
+
+    if not user:
+        return jsonify({'message' : 'No user found!'})
+
+    user.admin = True
+    db.session.commit()
+
+    return jsonify({'message' : 'User is now an admin'})
 
 @app.route('/customer', methods=['GET'])
 @token_required
