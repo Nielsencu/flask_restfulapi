@@ -1,13 +1,31 @@
 version : '3.8'
+
+
 services:
-  database:
-    container_name: postgres
-    image: postgres:latest
-    env_file: database.conf
-    ports:
-      - 5432:5432
+  web:
+    build: ./services/web
+    command: python manage.py run -h 0.0.0.0
     volumes:
-      - db_volume:var/lib/postgresql
+      - ./services/web/:/app/
+    ports:
+      - 5000:5000
+    env_file:
+      - ./.env.dev
+    depends_on:
+      - db
+  db:
+    image: postgres:12-alpine
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=newPassword
+      - POSTGRES_DB=postgres
+    ports:
+    - "5432:5432"
+
+    
 
 volumes:
-  db_volume:
+  postgres_data:
