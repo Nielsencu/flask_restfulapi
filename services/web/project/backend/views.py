@@ -37,7 +37,7 @@ def token_required(f):
 
 # User related views
 
-@backend.route('/user', methods=['GET'])
+@backend.route('/api/users', methods=['GET'])
 def list_users():
     users = User.query.all()
 
@@ -53,19 +53,20 @@ def list_users():
     return jsonify({'users' : output})
 
 
-@backend.route('/user', methods=['POST'])
+@backend.route('/api/users/register', methods=['POST'])
 def create_user():
     data = request.get_json()
 
     hashed_password = generate_password_hash(data['password'], method='sha256')
-
-    new_user = User(public_id = str(uuid.uuid4()), name = data['name'], password=hashed_password, admin=True) #For development convenience, admin defaults to true
+    public_id = str(uuid.uuid4())
+    data['public_id'] = public_id
+    new_user = User(public_id = public_id, name = data['name'], password=hashed_password, admin=True) #For development convenience, admin defaults to true
 
     db.session.add(new_user)
     db.session.commit()
-    return jsonify({'message': 'New user has been created'})
+    return jsonify({'message': 'New user has been created', "user" : data})
 
-@backend.route('/user/<public_id>', methods=['PUT'])
+@backend.route('/api/users/<public_id>', methods=['PUT'])
 @token_required
 def promote_user(public_id):
 
@@ -79,7 +80,7 @@ def promote_user(public_id):
 
     return jsonify({'message' : 'User is now an admin'})
 
-@backend.route('/customer/<public_id>', methods=['DELETE'])
+@backend.route('/api/users/<public_id>', methods=['DELETE'])
 @token_required
 def delete_user(current_user, public_id):
 
@@ -93,11 +94,11 @@ def delete_user(current_user, public_id):
     
     db.session.delete(user)
     db.session.commit()
-    return jsonify({'message' : 'The User has been deleted'})
+    return jsonify({'message' : 'The User has been deleted', 'public_id' : public_id})
 
 #Customer related views
 
-@backend.route('/customer', methods=['GET'])
+@backend.route('/api/customers', methods=['GET'])
 @token_required
 def get_all_customers(current_user):
 
@@ -117,7 +118,7 @@ def get_all_customers(current_user):
 
     return jsonify({'customers' : output})
 
-@backend.route('/customer/sortedbydob/<n>', methods=['GET'])
+@backend.route('/api/customers/sortedbydob/<n>', methods=['GET'])
 @token_required
 def get_n_youngest_customers(current_user,n):
 
@@ -150,7 +151,7 @@ def get_n_youngest_customers(current_user,n):
     return jsonify({'customer' : result})
 
 
-@backend.route('/customer/<customer_id>', methods=['GET'])
+@backend.route('/api/customers/<customer_id>', methods=['GET'])
 @token_required
 def get_customer(current_user,customer_id):
 
@@ -168,7 +169,7 @@ def get_customer(current_user,customer_id):
     customer_data['updated_at'] = customer.updated_at
     return jsonify({'customer' : customer_data})
 
-@backend.route('/customer', methods=['POST'])
+@backend.route('/api/customers', methods=['POST'])
 @token_required
 def create_customer(current_user):
 
@@ -185,9 +186,9 @@ def create_customer(current_user):
     new_customer = Customer(name=data['name'], dob=data['dob'], updated_at = now_singapore)
     db.session.add(new_customer)
     db.session.commit()
-    return jsonify({'message' : 'New Customer created'})
+    return jsonify({'message' : 'New Customer created', 'new_customer' : data})
 
-@backend.route('/customer/<customer_id>', methods=['PUT'])
+@backend.route('/api/customers/<customer_id>', methods=['PUT'])
 @token_required
 def update_customer(current_user, customer_id):
 
@@ -213,9 +214,9 @@ def update_customer(current_user, customer_id):
     customer.updated_at = now_singapore
 
     db.session.commit()
-    return jsonify({'message' : "Customer's data has been succesfully modified"})
+    return jsonify({'message' : "Customer's data has been succesfully modified", 'customer' : customer_id})
 
-@backend.route('/customer/<customer_id>', methods=['DELETE'])
+@backend.route('/api/customers/<customer_id>', methods=['DELETE'])
 @token_required
 def delete_customer(current_user, customer_id):
 
@@ -229,23 +230,26 @@ def delete_customer(current_user, customer_id):
     
     db.session.delete(customer)
     db.session.commit()
-    return jsonify({'message' : 'The customer has been deleted'})
+    return jsonify({'message' : 'The customer has been deleted', 'customer_id' : customer_id})
 
 #Login view
 
-@backend.route('/login')
+@backend.route('/login', methods=['POST'])
 def login():
-    auth = request.authorization
+    data = request.get_json()
 
-    if not auth or not auth.username or not auth.password:
+    username = data['name']
+    password = data['password']
+
+    if not username or not password:
         return make_response("Couldn't verify", 401, {'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
-    user = User.query.filter_by(name = auth.username).first()
-
+    user = User.query.filter_by(name = username).first()
+    
     if not user:
         return make_response("Couldn't find the user", 401,{'WWW-Authenticate' : 'Basic realm="Login required!"'})
     
-    if check_password_hash(user.password, auth.password):
+    if check_password_hash(user.password, password):
         token = jwt.encode({'public_id' : user.public_id, 'exp' :datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, config.SECRET_KEY)
         return jsonify({'token' : token.decode('UTF-8')})
     

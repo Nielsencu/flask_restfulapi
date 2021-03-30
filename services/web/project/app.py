@@ -19,6 +19,7 @@ def create_app(app_name="project", blueprints=None):
 
     init_app(app)
 
+    db.drop_all() # Use for dev env
     db.create_all()
     db.session.commit()
 
