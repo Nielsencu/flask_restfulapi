@@ -1,6 +1,8 @@
-import flask_sqlalchemy
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
-db = flask_sqlalchemy.SQLAlchemy()
+migrate = Migrate()
+db = SQLAlchemy()
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
