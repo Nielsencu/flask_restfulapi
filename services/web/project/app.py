@@ -23,6 +23,7 @@ def create_app(app_name="project", blueprints=None):
     db.create_all()
     db.session.commit()
 
+
     return app
 
 def init_app(app):

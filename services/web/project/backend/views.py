@@ -158,7 +158,7 @@ def get_customer(current_user,customer_id):
     if not current_user.admin:
         return jsonify({'message' : 'Have no permission!'})
 
-    customer = Customer.query.filter_by(id =customer_id).first()
+    customer = Customer.query.filter_by(public_id =customer_id).first()
 
     if not customer:
         return jsonify({'message' : 'No Customer found!'})
@@ -167,6 +167,7 @@ def get_customer(current_user,customer_id):
     customer_data['name'] = customer.name
     customer_data['dob'] = customer.dob
     customer_data['updated_at'] = customer.updated_at
+    customer_data['public_id'] = customer.public_id
     return jsonify({'customer' : customer_data})
 
 @backend.route('/api/customers', methods=['POST'])
@@ -177,13 +178,15 @@ def create_customer(current_user):
         return jsonify({'message' : 'Have no permission!'})
 
     data = request.get_json()
+    public_id = str(uuid.uuid4())
+    data['public_id'] = public_id
     
     #Current UTC time
     now_utc = datetime.datetime.now(timezone('UTC'))
     #Convert to Singapore time zone
     now_singapore = now_utc.astimezone(singapore)
     #Create new customer
-    new_customer = Customer(name=data['name'], dob=data['dob'], updated_at = now_singapore)
+    new_customer = Customer(public_id = public_id, name=data['name'], dob=data['dob'], updated_at = now_singapore)
     db.session.add(new_customer)
     db.session.commit()
     return jsonify({'message' : 'New Customer created', 'new_customer' : data})
@@ -195,7 +198,7 @@ def update_customer(current_user, customer_id):
     if not current_user.admin:
         return jsonify({'message' : 'Have no permission!'})
 
-    customer = Customer.query.filter_by(id =customer_id).first()
+    customer = Customer.query.filter_by(public_id =customer_id).first()
 
     if not customer:
         return jsonify({'message' : 'No Customer found!'})
@@ -223,7 +226,7 @@ def delete_customer(current_user, customer_id):
     if not current_user.admin:
         return jsonify({'message' : 'Have no permission!'})
 
-    customer = Customer.query.filter_by(id =customer_id).first()
+    customer = Customer.query.filter_by(public_id =customer_id).first()
 
     if not customer:
         return jsonify({'message' : 'No Customer found!'})

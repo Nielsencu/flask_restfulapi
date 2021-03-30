@@ -13,6 +13,7 @@ class User(db.Model):
 
 class Customer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    public_id = db.Column(db.String(50), unique=True)
     name = db.Column(db.String(50))
     dob = db.Column(db.String(50)) #Date format of YYYY-MM-DD
     updated_at = db.Column(db.String(50))
