@@ -35,6 +35,11 @@ To check for errors:
 docker-compose logs -f
 ```
 
+## Postman Collection
+There is a postman collection under root directory named Test_Functionality.json
+
+It can be imported to test the API Functionality.
+
 ## Routes
 
 **GET** `http://0.0.0.0:5000/`
@@ -46,7 +51,6 @@ This base route can be used to check if the API is currently running. If the ser
     "hello": "world"
 }
 ```
-
 
 ### Register a user
 
