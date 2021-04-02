@@ -103,7 +103,7 @@ No body required. x-access-token required in the headers. User's public id will 
 If no customer is matched with the public_id :
 ```json
 {
-    "message": "No Customer found!"
+    "message": "No User found!"
 }
 ```
 
