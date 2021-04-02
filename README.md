@@ -191,8 +191,8 @@ Sample **Response** for n = 3:
 
 When input n > number of customers in the database, it will return all customers in the database sorted by the youngest at the top.
 
-If input n <= 0, will return empty customer json object.
 
+Sample **Response** for n = 5 (currently number of customers in database is 3):
 
 ```json
 {
@@ -200,19 +200,30 @@ If input n <= 0, will return empty customer json object.
         {
             "dob": "2005-02-15",
             "name": "Palm",
-            "updated_at": "2021-04-02 03:34:44.892941+00"
+            "updated_at": "2021-04-02 04:04:30.848338+00"
         },
         {
             "dob": "1998-05-25",
             "name": "Pam",
-            "updated_at": "2021-04-02 03:34:46.310163+00"
+            "updated_at": "2021-04-02 04:04:32.527373+00"
         },
         {
             "dob": "1998-02-05",
             "name": "Swen",
-            "updated_at": "2021-04-02 03:49:50.540073+00"
+            "updated_at": "2021-04-02 04:04:29.067133+00"
         }
     ]
+}
+```
+
+If input n <= 0, will return empty customer json object.
+
+
+Sample **Response** for n = -1:
+
+```json
+{
+    "customer": []
 }
 ```
 
