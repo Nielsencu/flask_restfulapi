@@ -142,8 +142,10 @@ def get_n_youngest_customers(current_user,n):
 
     n = int(n)
 
-    if(n > len(output)):
+    if n > len(output):
         n = len(output)
+    elif n < 0:
+        n = 0
 
     for i in range(n):
         result.append(output[i])

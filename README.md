@@ -165,7 +165,34 @@ No body required. x-access-token required in the headers. Will return n youngest
 
 **GET** `http://0.0.0.0:5000/api/customers/sortedbydob/:n`
 
-Sample **Response**:
+Sample **Response** for n = 3:
+
+```json
+{
+    "customer": [
+        {
+            "dob": "2005-02-15",
+            "name": "Palm",
+            "updated_at": "2021-04-02 03:34:44.892941+00"
+        },
+        {
+            "dob": "1998-05-25",
+            "name": "Pam",
+            "updated_at": "2021-04-02 03:34:46.310163+00"
+        },
+        {
+            "dob": "1998-02-05",
+            "name": "Swen",
+            "updated_at": "2021-04-02 03:49:50.540073+00"
+        }
+    ]
+}
+```
+
+When input n > number of customers in the database, it will return all customers in the database sorted by the youngest at the top.
+
+If input n <= 0, will return empty customer json object.
+
 
 ```json
 {
