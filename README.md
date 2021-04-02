@@ -65,6 +65,49 @@ Body of **request** must be JSON. Sample:
 }
 ```
 
+### Get list of all users
+
+No body required. Will return list of all users
+
+**GET** `http://0.0.0.0:5000/api/users`
+
+Sample **Response**:
+
+```json
+{
+    "users": [
+        {
+            "admin": true,
+            "name": "Admin",
+            "public_id": "cc170fb4-352a-4705-b8cf-cf07ef1de1af"
+        }
+    ]
+}
+```
+
+### Delete an user
+
+No body required. x-access-token required in the headers. User's public id will come from the URL.
+
+**DELETE** `http://0.0.0.0:5000/api/users/:public_id`
+
+**Response** for the delete will just be the public_id for the deleted user
+
+```json
+{
+    "message": "The User has been deleted",
+    "public_id": "cc170fb4-352a-4705-b8cf-cf07ef1de1af"
+}
+```
+
+If no customer is matched with the public_id :
+```json
+{
+    "message": "No Customer found!"
+}
+```
+
+
 ### Login and get a token
 
 **POST** `http://0.0.0.0:5000/login`
